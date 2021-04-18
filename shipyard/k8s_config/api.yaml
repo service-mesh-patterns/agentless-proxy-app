@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  labels:
+    app: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: api
+        image: nicholasjackson/connect-native:v0.0.3
+        ports:
+        - containerPort: 9090
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+               fieldPath: status.hostIP
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: CONSUL_HTTP_ADDR
+          value: http://$(HOST_IP):8500
+        - name: SERVICE_NAME
+          value: api
+        - name: PUBLIC
+          value: "true"
+        - name: UPSTREAM
+          value: https://payments.service.consul
+        - name: IP_ADDRESS
+          value: $(POD_IP)

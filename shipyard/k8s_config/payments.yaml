@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-deployment
+  labels:
+    app: payments
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: payments
+  template:
+    metadata:
+      labels:
+        app: payments
+    spec:
+      containers:
+      - name: payments
+        image: nicholasjackson/connect-native:v0.0.3
+        ports:
+        - containerPort: 9090
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+               fieldPath: status.hostIP
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: CONSUL_HTTP_ADDR
+          value: http://$(HOST_IP):8500
+        - name: SERVICE_NAME
+          value: payments
+        - name: IP_ADDRESS
+          value: $(POD_IP)
